@@ -21,7 +21,7 @@ public class AlertController {
 
     @PostMapping
     public ResponseEntity<Map<String, String>> createAlert(@Valid @RequestBody Alert alert) {
-        log.info("Received alert: type={}, severity={}", alert.getType(), alert.getSeverity());
+        log.info("Received alert: type={}, severity={}", alert.getAlertType(), alert.getSeverity());
 
         String alertId = alertService.publishAlert(alert);
 

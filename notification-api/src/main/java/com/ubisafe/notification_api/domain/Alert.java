@@ -17,8 +17,11 @@ public class Alert {
 
     private String id;
 
+    @NotBlank(message = "ClientId é obrigatorio")
+    private String clientId;
+
     @NotBlank(message = "Tipo de alerta é obrigatorio")
-    private String type;
+    private String alertType;
 
     @NotBlank(message = "Mensagem é obrigatoria")
     private String message;

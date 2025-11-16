@@ -20,7 +20,10 @@ public class AlertEntity {
     private String id;
 
     @Column(nullable = false)
-    private String type;
+    private String clientId;
+
+    @Column(nullable = false)
+    private String alertType;
 
     @Column(nullable = false, length = 1000)
     private String message;
@@ -37,7 +40,9 @@ public class AlertEntity {
     @Column(nullable = false)
     private LocalDateTime processedAt;
 
-    public enum Severity {
-        LOW, MEDIUM, HIGH, CRITICAL
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProcessingStatus processingStatus;
+
+    private String failureReason;
 }

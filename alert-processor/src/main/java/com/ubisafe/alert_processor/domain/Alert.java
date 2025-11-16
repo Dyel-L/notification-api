@@ -14,13 +14,10 @@ import java.time.LocalDateTime;
 public class Alert {
 
     private String id;
-    private String type;
+    private String clientId;
+    private String alertType;
     private String message;
     private Severity severity;
     private String source;
     private LocalDateTime timestamp;
-
-    public enum Severity {
-        LOW, MEDIUM, HIGH, CRITICAL
-    }
 }
