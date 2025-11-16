@@ -1,3 +1,18 @@
 spring:
   application:
     name: notification-api
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+
+server:
+    port: 8080
+
+logging:
+  level:
+    com.ubisafe.api: INFO
+    org.springframework.kafka: INFO
