@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
+import static com.ubisafe.notification_api.domain.Severity.MEDIUM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -60,7 +61,7 @@ class AlertIntegrationTest {
                 .alertType("INTEGRATION_TEST")
                 .clientId("client-test123")
                 .message("Integration test alert")
-                .severity(Alert.Severity.MEDIUM)
+                .severity(MEDIUM)
                 .source("integration-test")
                 .build();
 
@@ -98,7 +99,7 @@ class AlertIntegrationTest {
                     .isNotNull()
                     .satisfies(a -> {
                         assertThat(a.getClientId()).isEqualTo("client-test123");
-                        assertThat(a.getSeverity()).isEqualTo(Alert.Severity.MEDIUM);
+                        assertThat(a.getSeverity()).isEqualTo(MEDIUM);
                         assertThat(a.getSource()).isEqualTo("integration-test");
                         assertThat(a.getAlertType()).isEqualTo("INTEGRATION_TEST");
                         assertThat(a.getId()).isNotNull();
@@ -172,7 +173,7 @@ class AlertIntegrationTest {
                 .alertType(type)
                 .clientId(clientId)
                 .message(message)
-                .severity(Alert.Severity.MEDIUM)
+                .severity(MEDIUM)
                 .source("integration-test")
                 .build();
     }

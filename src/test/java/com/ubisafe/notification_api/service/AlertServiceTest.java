@@ -12,6 +12,7 @@ import org.springframework.kafka.support.SendResult;
 
 import java.util.concurrent.CompletableFuture;
 
+import static com.ubisafe.notification_api.domain.Severity.HIGH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -32,7 +33,7 @@ class AlertServiceTest {
                 .alertType("SYSTEM")
                 .clientId("client-id-123")
                 .message("Test alert message")
-                .severity(Alert.Severity.HIGH)
+                .severity(HIGH)
                 .source("test-source")
                 .build();
     }

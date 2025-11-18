@@ -32,8 +32,4 @@ public class Alert {
     private String source;
 
     private LocalDateTime timestamp;
-
-    public enum Severity {
-        LOW, MEDIUM, HIGH, CRITICAL
-    }
 }
