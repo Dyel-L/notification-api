@@ -34,9 +34,4 @@ public class AlertController {
                         "message", "Alert received and queued for processing"
                 ));
     }
-
-    @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of("status", "UP"));
-    }
 }
