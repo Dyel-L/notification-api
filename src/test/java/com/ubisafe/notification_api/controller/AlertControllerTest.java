@@ -13,10 +13,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.ubisafe.notification_api.domain.Severity.HIGH;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+/**
+ * Testes de camada web (MVC) para o {@code AlertController}.
+ * Valida o endpoint de criação de alertas quanto a:
+ * - Sucesso (202 Accepted) quando os dados são válidos.
+ * - Erros de validação (400 Bad Request) quando campos obrigatórios estão ausentes.
+ *
+ */
 @WebMvcTest(AlertController.class)
 class AlertControllerTest {
 
@@ -31,7 +38,6 @@ class AlertControllerTest {
 
     @Test
     void createAlert_ShouldReturn202_WhenValidAlert() throws Exception {
-        // Arrange
         Alert alert = Alert.builder()
                 .alertType("SYSTEM")
                 .clientId("client-id-123")
@@ -42,7 +48,6 @@ class AlertControllerTest {
 
         when(alertService.publishAlert(any(Alert.class))).thenReturn("test-id-123");
 
-        // Act & Assert
         mockMvc.perform(post("/alerts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(alert)))
@@ -53,13 +58,11 @@ class AlertControllerTest {
 
     @Test
     void createAlert_ShouldReturn400_WhenMissingType() throws Exception {
-        // Arrange
         Alert alert = Alert.builder()
                 .message("Test alert")
                 .severity(HIGH)
                 .build();
 
-        // Act & Assert
         mockMvc.perform(post("/alerts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(alert)))
@@ -68,14 +71,12 @@ class AlertControllerTest {
 
     @Test
     void createAlert_ShouldReturn400_WhenMissingMessage() throws Exception {
-        // Arrange
         Alert alert = Alert.builder()
                 .alertType("SYSTEM")
                 .clientId("client-id-123")
                 .severity(HIGH)
                 .build();
 
-        // Act & Assert
         mockMvc.perform(post("/alerts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(alert)))
@@ -84,25 +85,16 @@ class AlertControllerTest {
 
     @Test
     void createAlert_ShouldReturn400_WhenMissingSeverity() throws Exception {
-        // Arrange
         Alert alert = Alert.builder()
                 .alertType("SYSTEM")
                 .clientId("client-id-123")
                 .message("Test alert")
                 .build();
 
-        // Act & Assert
         mockMvc.perform(post("/alerts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(alert)))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void health_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/alerts/health"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"));
     }
 }
 

@@ -16,6 +16,16 @@ import static com.ubisafe.notification_api.domain.Severity.HIGH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+
+/**
+ * Testes unitários para o {@link AlertService}.
+ * Valida:
+ * - Geração de ID e timestamp quando ausentes.
+ * - Uso de ID fornecido externamente.
+ * - Envio para o tópico Kafka correto.
+ * -
+ * Usa Mockito para simular o {@link KafkaTemplate} e evitar integração real com Kafka.
+ */
 @ExtendWith(MockitoExtension.class)
 class AlertServiceTest {
 
@@ -40,14 +50,11 @@ class AlertServiceTest {
 
     @Test
     void publishAlert_ShouldGenerateIdAndTimestamp_WhenNotProvided() {
-        // Arrange
         CompletableFuture<SendResult<String, String>> future = CompletableFuture.completedFuture(null);
         when(kafkaTemplate.send(anyString(), anyString(), anyString())).thenReturn(future);
 
-        // Act
         String alertId = alertService.publishAlert(testAlert);
 
-        // Assert
         assertNotNull(alertId);
         assertNotNull(testAlert.getId());
         assertNotNull(testAlert.getTimestamp());
@@ -56,30 +63,24 @@ class AlertServiceTest {
 
     @Test
     void publishAlert_ShouldUseProvidedId_WhenIdIsProvided() {
-        // Arrange
         String providedId = "test-id-123";
         testAlert.setId(providedId);
         CompletableFuture<SendResult<String, String>> future = CompletableFuture.completedFuture(null);
         when(kafkaTemplate.send(anyString(), anyString(), anyString())).thenReturn(future);
 
-        // Act
         String alertId = alertService.publishAlert(testAlert);
 
-        // Assert
         assertEquals(providedId, alertId);
         verify(kafkaTemplate, times(1)).send(eq("alerts"), eq(providedId), anyString());
     }
 
     @Test
     void publishAlert_ShouldSendToCorrectTopic() {
-        // Arrange
         CompletableFuture<SendResult<String, String>> future = CompletableFuture.completedFuture(null);
         when(kafkaTemplate.send(anyString(), anyString(), anyString())).thenReturn(future);
 
-        // Act
         alertService.publishAlert(testAlert);
 
-        // Assert
         verify(kafkaTemplate, times(1)).send(eq("alerts"), anyString(), anyString());
     }
 }

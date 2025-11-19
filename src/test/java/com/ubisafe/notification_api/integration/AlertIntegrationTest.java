@@ -29,8 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration test for Alert API with Kafka using Testcontainers.
- * Tests the complete flow: REST API -> Kafka -> Consumer verification.
+ * Teste de integração para API de alertas com Kafka usando Testcontainers.
+ * Testa o fluxo completo: API REST -> Kafka -> Verificação do consumidor.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -56,7 +56,7 @@ class AlertIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void devePublicarMensagemNoKafkaAoReceberPost() throws Exception {
+    void shouldPublishMessageToKafkaWhenReceivingPost() throws Exception {
         Alert alert = Alert.builder()
                 .alertType("INTEGRATION_TEST")
                 .clientId("client-test123")
@@ -109,7 +109,7 @@ class AlertIntegrationTest {
     }
 
     @Test
-    void deveValidarCamposObrigatorios() throws Exception {
+    void shouldValidateRequiredFields() throws Exception {
         mockMvc.perform(post("/alerts")
                         .contentType("application/json")
                         .content("{}"))
@@ -118,7 +118,7 @@ class AlertIntegrationTest {
     }
 
     @Test
-    void devePublicarMultiploAlertsNoKafka() throws Exception {
+    void shouldPublishMultipleAlertsToKafka() throws Exception {
         Alert alert1 = createAlert("TEST_1", "First alert", "client-1");
         Alert alert2 = createAlert("TEST_2", "Second alert", "client-2");
 
