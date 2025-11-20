@@ -8,11 +8,20 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: all
       retries: 3
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      timeout: 2000ms
 
 server:
-    port: 8080
+  port: 8080
+
+alert:
+  deduplication:
+    window-seconds: ${ALERT_DEDUPLICATION_WINDOW_SECONDS:5}
 
 logging:
   level:
-    com.ubisafe.api: INFO
+    com.ubisafe.notification_api: INFO
     org.springframework.kafka: INFO

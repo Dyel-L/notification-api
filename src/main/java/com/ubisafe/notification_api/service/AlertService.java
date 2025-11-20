@@ -11,6 +11,7 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -21,12 +22,23 @@ public class AlertService {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final DeduplicationService deduplicationService;
     private static final String TOPIC = "alerts";
 
-    public String publishAlert(Alert alert) {
+    public Map<String, String> publishAlert(Alert alert) {
         try {
             String contentHash = generateAlertHash(alert);
             alert.setId(contentHash);
+
+            boolean duplicate = deduplicationService.isDuplicate(contentHash);
+            if (duplicate) {
+                log.info("Duplicate alert skipped. id={}", contentHash);
+                return Map.of(
+                        "id", contentHash,
+                        "status", "ACCEPTED",
+                        "message", "Duplicate alert detected within window; not republished"
+                );
+            }
 
             if (alert.getTimestamp() == null) {
                 alert.setTimestamp(LocalDateTime.now());
@@ -34,21 +46,35 @@ public class AlertService {
 
             String alertJson = objectMapper.writeValueAsString(alert);
 
-            CompletableFuture<SendResult<String, String>> future =
-                    kafkaTemplate.send(TOPIC, alert.getId(), alertJson);
+            try {
+                CompletableFuture<SendResult<String, String>> future =
+                        kafkaTemplate.send(TOPIC, alert.getId(), alertJson);
 
-            future.whenComplete((result, ex) -> {
-                if (ex != null) {
-                    log.error("Failed to publish alert with id={}: {}", alert.getId(), ex.getMessage());
-                } else {
-                    log.info("Alert published to Kafka: id={}, partition={}, offset={}",
-                            alert.getId(),
-                            result.getRecordMetadata().partition(),
-                            result.getRecordMetadata().offset());
-                }
-            });
+                future.whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Failed to publish alert (async) id={}: {}", alert.getId(), ex.getMessage());
+                    } else {
+                        log.info("Alert published to Kafka: id={}, partition={}, offset={}",
+                                alert.getId(),
+                                result.getRecordMetadata().partition(),
+                                result.getRecordMetadata().offset());
+                    }
+                });
+            } catch (Exception sendEx) {
+                log.error("Immediate Kafka send failure for id={}: {}", alert.getId(), sendEx.getMessage());
+                return Map.of(
+                        "id", contentHash,
+                        "status", "ACCEPTED",
+                        "message", "Alert accepted but Kafka publish failed",
+                        "kafkaError", "true"
+                );
+            }
 
-            return alert.getId();
+            return Map.of(
+                    "id", contentHash,
+                    "status", "ACCEPTED",
+                    "message", "Alert received and queued for processing"
+            );
         } catch (JsonProcessingException e) {
             log.error("Error serializing alert: {}", e.getMessage());
             throw new AlertPublishException("Failed to serialize alert", e);

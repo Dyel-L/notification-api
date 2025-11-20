@@ -23,15 +23,11 @@ public class AlertController {
     public ResponseEntity<Map<String, String>> createAlert(@Valid @RequestBody Alert alert) {
         log.info("Received alert: type={}, severity={}", alert.getAlertType(), alert.getSeverity());
 
-        String alertId = alertService.publishAlert(alert);
+        Map<String, String> result = alertService.publishAlert(alert);
 
-        log.info("Alert published successfully with id={}", alertId);
+        log.info("Alert processed id={}, duplicate={}", result.get("id"), result.get("duplicate"));
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(Map.of(
-                        "id", alertId,
-                        "status", "ACCEPTED",
-                        "message", "Alert received and queued for processing"
-                ));
+                .body(result);
     }
 }

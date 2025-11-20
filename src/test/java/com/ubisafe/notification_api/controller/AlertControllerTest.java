@@ -10,6 +10,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Map;
+
 import static com.ubisafe.notification_api.domain.Severity.HIGH;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -46,14 +48,20 @@ class AlertControllerTest {
                 .source("test")
                 .build();
 
-        when(alertService.publishAlert(any(Alert.class))).thenReturn("test-id-123");
+        when(alertService.publishAlert(any(Alert.class))).thenReturn(Map.of(
+                "id", "test-id-123",
+                "status", "ACCEPTED",
+                "duplicate", "false",
+                "message", "Alert received and queued for processing"
+        ));
 
         mockMvc.perform(post("/alerts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(alert)))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.id").value("test-id-123"))
-                .andExpect(jsonPath("$.status").value("ACCEPTED"));
+                .andExpect(jsonPath("$.status").value("ACCEPTED"))
+                .andExpect(jsonPath("$.duplicate").value("false"));
     }
 
     @Test
