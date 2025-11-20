@@ -25,9 +25,9 @@ public class AlertService {
 
     public String publishAlert(Alert alert) {
         try {
-            if (alert.getId() == null || alert.getId().isEmpty()) {
-                alert.setId(UUID.randomUUID().toString());
-            }
+            String contentHash = generateAlertHash(alert);
+            alert.setId(contentHash);
+
             if (alert.getTimestamp() == null) {
                 alert.setTimestamp(LocalDateTime.now());
             }
@@ -53,5 +53,15 @@ public class AlertService {
             log.error("Error serializing alert: {}", e.getMessage());
             throw new AlertPublishException("Failed to serialize alert", e);
         }
+    }
+
+    private String generateAlertHash(Alert alert) {
+        String content = String.format("%s:%s:%s:%s",
+                alert.getClientId(),
+                alert.getAlertType(),
+                alert.getMessage(),
+                alert.getSeverity());
+
+        return UUID.nameUUIDFromBytes(content.getBytes()).toString();
     }
 }

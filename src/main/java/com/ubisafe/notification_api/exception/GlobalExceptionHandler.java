@@ -3,6 +3,7 @@ package com.ubisafe.notification_api.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
         });
 
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("error", "Validation Failed");
         response.put("errors", errors);
@@ -36,11 +37,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Malformed JSON Request");
+        response.put("message", "Failed to parse JSON payload. Please check your request body format.");
+
+        log.error("Malformed JSON request: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(AlertPublishException.class)
     public ResponseEntity<Map<String, Object>> handleAlertPublishException(
             AlertPublishException ex) {
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Alert Publish Error");
         response.put("message", ex.getMessage());
@@ -52,7 +66,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
+        response.put("timestamp", LocalDateTime.now().toString());
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Internal Server Error");
         response.put("message", "An unexpected error occurred");

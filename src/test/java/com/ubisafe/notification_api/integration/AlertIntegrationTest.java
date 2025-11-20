@@ -118,6 +118,18 @@ class AlertIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenMalformedJson() throws Exception {
+        String malformedJson = "{\"alertType\": \"TEST\", invalid}";
+
+        mockMvc.perform(post("/alerts")
+                        .contentType("application/json")
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Malformed JSON Request"))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
     void shouldPublishMultipleAlertsToKafka() throws Exception {
         Alert alert1 = createAlert("TEST_1", "First alert", "client-1");
         Alert alert2 = createAlert("TEST_2", "Second alert", "client-2");

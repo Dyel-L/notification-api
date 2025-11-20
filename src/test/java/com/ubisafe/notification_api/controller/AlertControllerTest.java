@@ -96,5 +96,28 @@ class AlertControllerTest {
                         .content(objectMapper.writeValueAsString(alert)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void createAlert_ShouldReturn400_WhenMalformedJson() throws Exception {
+        String malformedJson = "{\"alertType\": \"SYSTEM\", \"message\": \"Test\", invalid json}";
+
+        mockMvc.perform(post("/alerts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Malformed JSON Request"))
+                .andExpect(jsonPath("$.message").value("Failed to parse JSON payload. Please check your request body format."));
+    }
+
+    @Test
+    void createAlert_ShouldReturn400_WhenInvalidJsonStructure() throws Exception {
+        String invalidJson = "[\"this\", \"is\", \"an\", \"array\"]";
+
+        mockMvc.perform(post("/alerts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Malformed JSON Request"));
+    }
 }
 
