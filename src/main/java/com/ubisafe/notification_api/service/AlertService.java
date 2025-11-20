@@ -2,7 +2,6 @@ package com.ubisafe.notification_api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ubisafe.notification_api.domain.Alert;
 import com.ubisafe.notification_api.exception.AlertPublishException;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 public class AlertService {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper;
     private static final String TOPIC = "alerts";
 
     public String publishAlert(Alert alert) {
